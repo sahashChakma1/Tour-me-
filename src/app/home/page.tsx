@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
 import PlaceCard from '../components/PlaceCard';
+import type { User } from '@supabase/supabase-js';
 
 const places = [
   {
@@ -28,11 +29,11 @@ const places = [
 export default function HomePage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null); // ✅ use correct type
 
   useEffect(() => {
     const checkSession = async () => {
-      const { data, error } = await supabase.auth.getSession();
+      const { data } = await supabase.auth.getSession(); // ✅ removed unused error
       if (!data?.session) {
         router.push('/');
       } else {
