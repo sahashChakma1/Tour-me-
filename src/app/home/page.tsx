@@ -1,6 +1,9 @@
 'use client';
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { supabase } from '@/lib/supabaseClient';
 import PlaceCard from '../components/PlaceCard';
-
+import AuthDebug from '../components/AuthDebug';
 const places = [
   {
     id: 1,
@@ -23,6 +26,16 @@ const places = [
 ];
 
 export default function HomePage() {
+  const router = useRouter();
+
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data } = await supabase.auth.getSession();
+      if (!data.session) router.push('/');
+    };
+    checkSession();
+  }, [router]);
+
   return (
     <main className="p-6 min-h-screen bg-gray-100">
       <h1 className="text-3xl font-bold mb-6">Welcome to TourMe ✈️</h1>
@@ -31,6 +44,7 @@ export default function HomePage() {
           <PlaceCard key={place.id} place={place} />
         ))}
       </div>
+        <AuthDebug />
     </main>
   );
 }
