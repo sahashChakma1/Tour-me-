@@ -29,11 +29,11 @@ const places = [
 export default function HomePage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState<User | null>(null); // ✅ use correct type
+  const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
     const checkSession = async () => {
-      const { data } = await supabase.auth.getSession(); // ✅ removed unused error
+      const { data } = await supabase.auth.getSession();
       if (!data?.session) {
         router.push('/');
       } else {
@@ -54,10 +54,13 @@ export default function HomePage() {
 
   return (
     <main className="p-6 min-h-screen bg-gray-100">
-      <h1 className="text-3xl font-bold mb-2">Welcome to TourMe ✈️</h1>
+      <h1 className="text-3xl text-black font-bold mb-2">Welcome to TourMe ✈️</h1>
       {user && (
         <p className="mb-6 text-gray-600 text-sm">
-          Logged in as <span className="font-semibold">{user.email}</span>
+          Logged in as{' '}
+          <span className="font-semibold">
+            {user.user_metadata?.name || user.email}
+          </span>
         </p>
       )}
 

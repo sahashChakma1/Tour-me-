@@ -25,7 +25,7 @@ export default function PlaceCard({ place }: { place: Place }) {
           />
         </div>
         <div className="p-4">
-          <h2 className="text-xl font-semibold">{place.title}</h2>
+          <h2 className="text-xl text-gray-600 font-semibold">{place.title}</h2>
           <p className="text-gray-600 text-sm">{place.description}</p>
         </div>
       </div>
