@@ -1,14 +1,11 @@
-// File: src/app/place/[id]/page.tsx
 import { createClient } from '@/lib/supabaseServer';
 import Image from 'next/image';
 
-type Props = {
-  params: {
-    id: string;
-  };
-};
+interface PageProps {
+  params: { id: string };
+}
 
-export default async function PlaceDetailsPage({ params }: Props) {
+export default async function PlaceDetailsPage({ params }: PageProps) {
   const supabase = createClient();
 
   const { data: place, error } = await supabase
@@ -18,7 +15,7 @@ export default async function PlaceDetailsPage({ params }: Props) {
     .single();
 
   if (error) {
-    console.error(error.message);
+    console.error('Supabase fetch error:', error.message);
     return <p className="p-6 text-red-600">Error loading place.</p>;
   }
 
