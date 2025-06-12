@@ -1,14 +1,13 @@
-// app/place/[id]/page.tsx
 import { createClient } from '@/lib/supabaseServer';
 import Image from 'next/image';
 
-type PlaceDetailsPageProps = {
+type Props = {
   params: {
     id: string;
   };
 };
 
-export default async function PlaceDetailsPage({ params }: PlaceDetailsPageProps) {
+export default async function PlaceDetailsPage({ params }: Props) {
   const supabase = createClient();
 
   const { data: place, error } = await supabase
