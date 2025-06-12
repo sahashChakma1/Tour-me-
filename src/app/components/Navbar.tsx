@@ -4,26 +4,35 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabaseClient';
+import { User } from '@supabase/supabase-js';
 
 export default function Navbar() {
   const router = useRouter();
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const { data: { user }, error } = await supabase.auth.getUser();
+        const {
+          data: { user },
+          error,
+        } = await supabase.auth.getUser();
         if (error) {
           console.error('Error fetching user:', error.message);
           setUser(null);
           return;
         }
         setUser(user);
-      } catch (err: any) {
-        console.error('Error fetching user:', err.message);
+      } catch (err) {
+        if (err instanceof Error) {
+          console.error('Error fetching user:', err.message);
+        } else {
+          console.error('Unknown error:', err);
+        }
         setUser(null);
       }
     };
+
     fetchUser();
 
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
@@ -43,8 +52,12 @@ export default function Navbar() {
         return;
       }
       router.push('/home');
-    } catch (err: any) {
-      console.error('Logout error:', err.message);
+    } catch (err) {
+      if (err instanceof Error) {
+        console.error('Logout error:', err.message);
+      } else {
+        console.error('Unknown logout error:', err);
+      }
     }
   };
 

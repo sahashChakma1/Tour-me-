@@ -1,30 +1,26 @@
-// app/place/[id]/page.tsx
-export const dynamic = 'force-dynamic';
-
 import { fetchPlaceById } from '@/actions/supabaseActions';
 import Image from 'next/image';
+import { notFound } from 'next/navigation';
 
-interface Place {
-  id: string;
-  title: string;
-  description: string;
-  image_url: string;
+export const dynamic = 'force-dynamic';
+
+interface PlaceDetailsPageProps {
+  params: {
+    id: string;
+  };
 }
 
-export default async function PlaceDetailsPage({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default async function PlaceDetailsPage({ params }: PlaceDetailsPageProps) {
+  const numericId = Number(params.id);
+  if (isNaN(numericId)) {
+    notFound(); // returns a 404
+  }
+
   try {
-    const place = await fetchPlaceById(params.id);
+    const place = await fetchPlaceById(numericId);
 
     if (!place) {
-      return (
-        <div className="min-h-screen p-6 bg-gray-100 flex items-center justify-center">
-          <p className="text-gray-700 text-lg">Place not found.</p>
-        </div>
-      );
+      notFound(); // returns a 404
     }
 
     return (
@@ -32,7 +28,7 @@ export default async function PlaceDetailsPage({
         <div className="max-w-4xl w-full mx-auto bg-white shadow-md rounded-lg overflow-hidden">
           <div className="relative w-full h-72 md:h-96">
             <Image
-              src={place.image_url}
+              src={place.image_url ?? '/placeholder.jpg'}
               alt={place.title}
               fill
               className="object-cover"
@@ -47,8 +43,8 @@ export default async function PlaceDetailsPage({
         </div>
       </div>
     );
-  } catch (error: any) {
-    console.error('Error fetching place:', error.message);
+  } catch (error) {
+    console.error('Error loading place:', error);
     return (
       <div className="min-h-screen p-6 bg-gray-100 flex items-center justify-center">
         <p className="text-red-600 text-lg font-semibold">
