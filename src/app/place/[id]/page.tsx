@@ -1,21 +1,28 @@
-import { createClient } from '@/lib/supabaseServer'; // adjust path as needed
+// app/place/[id]/page.tsx
+import { createClient } from '@/lib/supabaseServer';
 import Image from 'next/image';
 
-export default async function PlaceDetailsPage({ params }: { params: { id: string } }) {
+type PlaceDetailsPageProps = {
+  params: {
+    id: string;
+  };
+};
+
+export default async function PlaceDetailsPage({ params }: PlaceDetailsPageProps) {
   const supabase = createClient();
 
   const { data: place, error } = await supabase
-  .from('places')
-  .select('*')
-  .eq('id', params.id)
-  .single();
+    .from('places')
+    .select('*')
+    .eq('id', params.id)
+    .single();
 
-if (error) {
-  console.error('Error fetching place:', error.message);
-  return <p className="p-6 text-red-600">Something went wrong. Please try again later.</p>;
-}
+  if (error) {
+    console.error('Error fetching place:', error.message);
+    return <p className="p-6 text-red-600">Something went wrong. Please try again later.</p>;
+  }
 
-if (!place) return <p className="p-6">Place not found.</p>;
+  if (!place) return <p className="p-6">Place not found.</p>;
 
   return (
     <div className="min-h-screen p-6 bg-gray-100">
