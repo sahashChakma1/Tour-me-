@@ -1,11 +1,7 @@
 import { createClient } from '@/lib/supabaseServer';
 import Image from 'next/image';
 
-interface PageProps {
-  params: { id: string };
-}
-
-export default async function PlaceDetailsPage({ params }: PageProps) {
+export default async function PlaceDetailsPage({ params }: { params: { id: string } }) {
   const supabase = createClient();
 
   const { data: place, error } = await supabase
