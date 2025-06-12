@@ -1,3 +1,4 @@
+// File: src/app/place/[id]/page.tsx
 import { createClient } from '@/lib/supabaseServer';
 import Image from 'next/image';
 
@@ -17,8 +18,8 @@ export default async function PlaceDetailsPage({ params }: Props) {
     .single();
 
   if (error) {
-    console.error('Error fetching place:', error.message);
-    return <p className="p-6 text-red-600">Something went wrong. Please try again later.</p>;
+    console.error(error.message);
+    return <p className="p-6 text-red-600">Error loading place.</p>;
   }
 
   if (!place) return <p className="p-6">Place not found.</p>;
