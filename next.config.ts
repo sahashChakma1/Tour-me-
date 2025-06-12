@@ -1,9 +1,11 @@
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
+/** @type {import('next').NextConfig} */
+const nextConfig = {
   images: {
-    domains: ['source.unsplash.com'], // Add any external image domains here
+    domains: [
+      'gbimgrbuychcevvyqztt.supabase.co', // your Supabase project
+      'source.unsplash.com',              // Unsplash dynamic image source
+    ],
   },
 };
 
-export default nextConfig;
+module.exports = nextConfig;
