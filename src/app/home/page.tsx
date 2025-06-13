@@ -10,8 +10,9 @@ interface Place {
   id: number;
   title: string;
   description: string;
-  image_url: string;
-  image: string; // ✅ Required for PlaceCard component
+  image_url: string | null;
+  image: string;
+  created_at?: string | null;
 }
 
 export default function HomePage() {
@@ -21,7 +22,6 @@ export default function HomePage() {
   const [places, setPlaces] = useState<Place[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
 
-  // ✅ Check user session
   useEffect(() => {
     const checkSession = async () => {
       const { data } = await supabase.auth.getSession();
@@ -35,39 +35,35 @@ export default function HomePage() {
     checkSession();
   }, [router]);
 
-  // ✅ Fetch places from Supabase and transform for UI
- useEffect(() => {
-  const fetchPlaces = async () => {
-    const { data, error } = await supabase
-      .from('places')
-      .select('*')
-      .order('created_at', { ascending: false });
+  useEffect(() => {
+    const fetchPlaces = async () => {
+      const { data, error } = await supabase
+        .from('places')
+        .select('*')
+        .order('created_at', { ascending: false });
 
-    if (error) {
-      console.error('Supabase fetch error:', error.message);
-      return;
-    }
+      if (error) {
+        console.error('Supabase fetch error:', error?.message ?? error);
+        return;
+      }
 
-    if (data) {
-      const transformed = data.map((place) => ({
-        ...place,
-        image: place.image_url, // required for PlaceCard
-      }));
-      setPlaces(transformed);
-    }
-  };
+      if (data) {
+        const transformed = data.map((place) => ({
+          ...place,
+          image: place.image_url ?? '/placeholder.jpg',
+        }));
+        setPlaces(transformed);
+      }
+    };
 
-  fetchPlaces();
-}, []);
+    fetchPlaces();
+  }, []);
 
-
-  // ✅ Filtered result
   const filteredPlaces = places.filter((place) =>
     place.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     place.description.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // ✅ Loading state
   if (loading) {
     return (
       <main className="flex items-center justify-center h-screen bg-gray-100">
@@ -76,11 +72,9 @@ export default function HomePage() {
     );
   }
 
-  // ✅ UI
   return (
     <main className="min-h-screen bg-[#f8fafc] px-4 py-10">
       <section className="max-w-6xl mx-auto">
-        {/* Header */}
         <div className="text-center mb-10">
           <h1 className="text-4xl sm:text-5xl font-extrabold text-gray-800 mb-2">
             Welcome to <span className="text-blue-600">TourMe</span> ✈️
@@ -95,7 +89,6 @@ export default function HomePage() {
           )}
         </div>
 
-        {/* Search Bar */}
         <div className="mb-8 flex justify-center">
           <input
             type="text"
@@ -106,7 +99,6 @@ export default function HomePage() {
           />
         </div>
 
-        {/* Place Cards */}
         {filteredPlaces.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
             {filteredPlaces.map((place) => (

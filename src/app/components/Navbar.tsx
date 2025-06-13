@@ -2,62 +2,46 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
-import { User } from '@supabase/supabase-js';
+import type { Session, User } from '@supabase/supabase-js';
 
 export default function Navbar() {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
 
+  // ✅ Fetch session and subscribe to changes
   useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const {
-          data: { user },
-          error,
-        } = await supabase.auth.getUser();
-        if (error) {
-          console.error('Error fetching user:', error.message);
-          setUser(null);
-          return;
-        }
-        setUser(user);
-      } catch (err) {
-        if (err instanceof Error) {
-          console.error('Error fetching user:', err.message);
-        } else {
-          console.error('Unknown error:', err);
-        }
-        setUser(null);
+    const getCurrentUser = async () => {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      if (error) {
+        console.error('Session fetch error:', error.message);
+        return;
       }
+      setUser(session?.user ?? null);
     };
 
-    fetchUser();
+    getCurrentUser();
 
-    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
     });
 
     return () => {
-      authListener.subscription?.unsubscribe();
+      subscription.unsubscribe();
     };
   }, []);
 
+  // ✅ Logout
   const handleLogout = async () => {
-    try {
-      const { error } = await supabase.auth.signOut();
-      if (error) {
-        console.error('Logout error:', error.message);
-        return;
-      }
-      router.push('/home');
-    } catch (err) {
-      if (err instanceof Error) {
-        console.error('Logout error:', err.message);
-      } else {
-        console.error('Unknown logout error:', err);
-      }
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      console.error('Logout error:', error.message);
+    } else {
+      setUser(null);
+      router.push('/login');
     }
   };
 
@@ -70,23 +54,18 @@ export default function Navbar() {
         TourMe
       </Link>
       <div className="flex items-center space-x-4 sm:space-x-6 text-sm sm:text-base">
-        <Link
-          href="/home"
-          className="text-gray-300 hover:text-white transition-colors"
-        >
+        <Link href="/home" className="text-gray-300 hover:text-white transition-colors">
           Home
         </Link>
-        <Link
-          href="/about"
-          className="text-gray-300 hover:text-white transition-colors"
-        >
+        <Link href="/about" className="text-gray-300 hover:text-white transition-colors">
           About
         </Link>
+
         {user ? (
           <button
             onClick={handleLogout}
             className="px-4 py-1.5 rounded-md text-red-400 border border-red-500 font-medium transition-all duration-200 
-                       hover:bg-red-600 hover:text-white shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2"
+              hover:bg-red-600 hover:text-white shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2"
           >
             Logout
           </button>
@@ -94,7 +73,7 @@ export default function Navbar() {
           <Link
             href="/login"
             className="px-4 py-1.5 rounded-md text-blue-400 border border-blue-500 font-medium transition-all duration-200 
-                       hover:bg-blue-600 hover:text-white shadow-sm hover:shadow-md"
+              hover:bg-blue-600 hover:text-white shadow-sm hover:shadow-md"
           >
             Login
           </Link>
